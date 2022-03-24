@@ -4,7 +4,7 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// x/slashing module sentinel errors
+// // x/slashing module sentinel errors
 var (
 	ErrNoValidatorForAddress        = sdkerrors.Register(ModuleName, 2, "address is not associated with any known validator")
 	ErrBadValidatorAddr             = sdkerrors.Register(ModuleName, 3, "validator does not exist for that address")

@@ -1,21 +1,20 @@
-package types_test
+package types
 
 import (
 	"math/rand"
 	"sort"
 	"testing"
 
+	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	tmcrypto "github.com/tendermint/tendermint/crypto"
 	tmtypes "github.com/tendermint/tendermint/types"
 
 	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
-	cryptotypes "github.com/cosmos/cosmos-sdk/crypto/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/staking/teststaking"
-	"github.com/cosmos/cosmos-sdk/x/staking/types"
 )
 
 func TestValidatorTestEquivalent(t *testing.T) {
@@ -28,19 +27,19 @@ func TestValidatorTestEquivalent(t *testing.T) {
 }
 
 func TestUpdateDescription(t *testing.T) {
-	d1 := types.Description{
+	d1 := Description{
 		Website: "https://validator.cosmos",
 		Details: "Test validator",
 	}
 
-	d2 := types.Description{
-		Moniker:  types.DoNotModifyDesc,
-		Identity: types.DoNotModifyDesc,
-		Website:  types.DoNotModifyDesc,
-		Details:  types.DoNotModifyDesc,
+	d2 := Description{
+		Moniker:  DoNotModifyDesc,
+		Identity: DoNotModifyDesc,
+		Website:  DoNotModifyDesc,
+		Details:  DoNotModifyDesc,
 	}
 
-	d3 := types.Description{
+	d3 := Description{
 		Moniker:  "",
 		Identity: "",
 		Website:  "",
@@ -91,8 +90,8 @@ func TestRemoveTokens(t *testing.T) {
 	require.Equal(t, int64(90), validator.Tokens.Int64())
 
 	// update validator to from bonded -> unbonded
-	validator = validator.UpdateStatus(types.Unbonded)
-	require.Equal(t, types.Unbonded, validator.Status)
+	validator = validator.UpdateStatus(Unbonded)
+	require.Equal(t, Unbonded, validator.Status)
 
 	validator = validator.RemoveTokens(sdk.NewInt(10))
 	require.Panics(t, func() { validator.RemoveTokens(sdk.NewInt(-1)) })
@@ -101,7 +100,7 @@ func TestRemoveTokens(t *testing.T) {
 
 func TestAddTokensValidatorBonded(t *testing.T) {
 	validator := newValidator(t, valAddr1, pk1)
-	validator = validator.UpdateStatus(types.Bonded)
+	validator = validator.UpdateStatus(Bonded)
 	validator, delShares := validator.AddTokensFromDel(sdk.NewInt(10))
 
 	assert.True(sdk.DecEq(t, sdk.NewDec(10), delShares))
@@ -111,11 +110,11 @@ func TestAddTokensValidatorBonded(t *testing.T) {
 
 func TestAddTokensValidatorUnbonding(t *testing.T) {
 	validator := newValidator(t, valAddr1, pk1)
-	validator = validator.UpdateStatus(types.Unbonding)
+	validator = validator.UpdateStatus(Unbonding)
 	validator, delShares := validator.AddTokensFromDel(sdk.NewInt(10))
 
 	assert.True(sdk.DecEq(t, sdk.NewDec(10), delShares))
-	assert.Equal(t, types.Unbonding, validator.Status)
+	assert.Equal(t, Unbonding, validator.Status)
 	assert.True(sdk.IntEq(t, sdk.NewInt(10), validator.Tokens))
 	assert.True(sdk.DecEq(t, sdk.NewDec(10), validator.DelegatorShares))
 }
@@ -123,21 +122,21 @@ func TestAddTokensValidatorUnbonding(t *testing.T) {
 func TestAddTokensValidatorUnbonded(t *testing.T) {
 
 	validator := newValidator(t, valAddr1, pk1)
-	validator = validator.UpdateStatus(types.Unbonded)
+	validator = validator.UpdateStatus(Unbonded)
 	validator, delShares := validator.AddTokensFromDel(sdk.NewInt(10))
 
 	assert.True(sdk.DecEq(t, sdk.NewDec(10), delShares))
-	assert.Equal(t, types.Unbonded, validator.Status)
+	assert.Equal(t, Unbonded, validator.Status)
 	assert.True(sdk.IntEq(t, sdk.NewInt(10), validator.Tokens))
 	assert.True(sdk.DecEq(t, sdk.NewDec(10), validator.DelegatorShares))
 }
 
 // TODO refactor to make simpler like the AddToken tests above
 func TestRemoveDelShares(t *testing.T) {
-	valA := types.Validator{
+	valA := Validator{
 		OperatorAddress: valAddr1.String(),
 		ConsensusPubkey: pk1Any,
-		Status:          types.Bonded,
+		Status:          Bonded,
 		Tokens:          sdk.NewInt(100),
 		DelegatorShares: sdk.NewDec(100),
 	}
@@ -172,20 +171,20 @@ func TestAddTokensFromDel(t *testing.T) {
 func TestUpdateStatus(t *testing.T) {
 	validator := newValidator(t, valAddr1, pk1)
 	validator, _ = validator.AddTokensFromDel(sdk.NewInt(100))
-	require.Equal(t, types.Unbonded, validator.Status)
+	require.Equal(t, Unbonded, validator.Status)
 	require.Equal(t, int64(100), validator.Tokens.Int64())
 
 	// Unbonded to Bonded
-	validator = validator.UpdateStatus(types.Bonded)
-	require.Equal(t, types.Bonded, validator.Status)
+	validator = validator.UpdateStatus(Bonded)
+	require.Equal(t, Bonded, validator.Status)
 
 	// Bonded to Unbonding
-	validator = validator.UpdateStatus(types.Unbonding)
-	require.Equal(t, types.Unbonding, validator.Status)
+	validator = validator.UpdateStatus(Unbonding)
+	require.Equal(t, Unbonding, validator.Status)
 
 	// Unbonding to Bonded
-	validator = validator.UpdateStatus(types.Bonded)
-	require.Equal(t, types.Bonded, validator.Status)
+	validator = validator.UpdateStatus(Bonded)
+	require.Equal(t, Bonded, validator.Status)
 }
 
 func TestPossibleOverflow(t *testing.T) {
@@ -203,7 +202,7 @@ func TestValidatorMarshalUnmarshalJSON(t *testing.T) {
 	require.NoError(t, err)
 	require.NotEmpty(t, js)
 	require.Contains(t, string(js), "\"consensus_pubkey\":{\"type\":\"tendermint/PubKeyEd25519\"")
-	got := &types.Validator{}
+	got := &Validator{}
 	err = legacy.Cdc.UnmarshalJSON(js, got)
 	assert.NoError(t, err)
 	assert.True(t, validator.Equal(got))
@@ -212,17 +211,17 @@ func TestValidatorMarshalUnmarshalJSON(t *testing.T) {
 func TestValidatorSetInitialCommission(t *testing.T) {
 	val := newValidator(t, valAddr1, pk1)
 	testCases := []struct {
-		validator   types.Validator
-		commission  types.Commission
+		validator   Validator
+		commission  Commission
 		expectedErr bool
 	}{
-		{val, types.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()), false},
-		{val, types.NewCommission(sdk.ZeroDec(), sdk.NewDecWithPrec(-1, 1), sdk.ZeroDec()), true},
-		{val, types.NewCommission(sdk.ZeroDec(), sdk.NewDec(15000000000), sdk.ZeroDec()), true},
-		{val, types.NewCommission(sdk.NewDecWithPrec(-1, 1), sdk.ZeroDec(), sdk.ZeroDec()), true},
-		{val, types.NewCommission(sdk.NewDecWithPrec(2, 1), sdk.NewDecWithPrec(1, 1), sdk.ZeroDec()), true},
-		{val, types.NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.NewDecWithPrec(-1, 1)), true},
-		{val, types.NewCommission(sdk.ZeroDec(), sdk.NewDecWithPrec(1, 1), sdk.NewDecWithPrec(2, 1)), true},
+		{val, NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.ZeroDec()), false},
+		{val, NewCommission(sdk.ZeroDec(), sdk.NewDecWithPrec(-1, 1), sdk.ZeroDec()), true},
+		{val, NewCommission(sdk.ZeroDec(), sdk.NewDec(15000000000), sdk.ZeroDec()), true},
+		{val, NewCommission(sdk.NewDecWithPrec(-1, 1), sdk.ZeroDec(), sdk.ZeroDec()), true},
+		{val, NewCommission(sdk.NewDecWithPrec(2, 1), sdk.NewDecWithPrec(1, 1), sdk.ZeroDec()), true},
+		{val, NewCommission(sdk.ZeroDec(), sdk.ZeroDec(), sdk.NewDecWithPrec(-1, 1)), true},
+		{val, NewCommission(sdk.ZeroDec(), sdk.NewDecWithPrec(1, 1), sdk.NewDecWithPrec(2, 1)), true},
 	}
 
 	for i, tc := range testCases {
@@ -245,8 +244,8 @@ func TestValidatorSetInitialCommission(t *testing.T) {
 
 // Check that sort will create deterministic ordering of validators
 func TestValidatorsSortDeterminism(t *testing.T) {
-	vals := make([]types.Validator, 10)
-	sortedVals := make([]types.Validator, 10)
+	vals := make([]Validator, 10)
+	sortedVals := make([]Validator, 10)
 
 	// Create random validator slice
 	for i := range vals {
@@ -255,7 +254,7 @@ func TestValidatorsSortDeterminism(t *testing.T) {
 	}
 
 	// Save sorted copy
-	sort.Sort(types.Validators(vals))
+	sort.Sort(Validators(vals))
 	copy(sortedVals, vals)
 
 	// Randomly shuffle validators, sort, and check it is equal to original sort
@@ -266,20 +265,20 @@ func TestValidatorsSortDeterminism(t *testing.T) {
 			vals[j] = it
 		})
 
-		types.Validators(vals).Sort()
+		Validators(vals).Sort()
 		require.Equal(t, sortedVals, vals, "Validator sort returned different slices")
 	}
 }
 
 // Check SortTendermint sorts the same as tendermint
 func TestValidatorsSortTendermint(t *testing.T) {
-	vals := make([]types.Validator, 100)
+	vals := make([]Validator, 100)
 
 	for i := range vals {
 		pk := ed25519.GenPrivKey().PubKey()
 		pk2 := ed25519.GenPrivKey().PubKey()
 		vals[i] = newValidator(t, sdk.ValAddress(pk2.Address()), pk)
-		vals[i].Status = types.Bonded
+		vals[i].Status = Bonded
 		vals[i].Tokens = sdk.NewInt(rand.Int63())
 	}
 	// create some validators with the same power
@@ -287,66 +286,100 @@ func TestValidatorsSortTendermint(t *testing.T) {
 		vals[i].Tokens = sdk.NewInt(1000000)
 	}
 
-	valz := types.Validators(vals)
+	valz := Validators(vals)
 
 	// create expected tendermint validators by converting to tendermint then sorting
-	expectedVals, err := teststaking.ToTmValidators(valz, sdk.DefaultPowerReduction)
+	expectedVals, err := ToTmValidators(valz, sdk.DefaultPowerReduction)
 	require.NoError(t, err)
 	sort.Sort(tmtypes.ValidatorsByVotingPower(expectedVals))
 
 	// sort in SDK and then convert to tendermint
 	sort.SliceStable(valz, func(i, j int) bool {
-		return types.ValidatorsByVotingPower(valz).Less(i, j, sdk.DefaultPowerReduction)
+		return ValidatorsByVotingPower(valz).Less(i, j, sdk.DefaultPowerReduction)
 	})
-	actualVals, err := teststaking.ToTmValidators(valz, sdk.DefaultPowerReduction)
+	actualVals, err := ToTmValidators(valz, sdk.DefaultPowerReduction)
 	require.NoError(t, err)
 
 	require.Equal(t, expectedVals, actualVals, "sorting in SDK is not the same as sorting in Tendermint")
 }
 
 func TestValidatorToTm(t *testing.T) {
-	vals := make(types.Validators, 10)
+	vals := make(Validators, 10)
 	expected := make([]*tmtypes.Validator, 10)
 
 	for i := range vals {
 		pk := ed25519.GenPrivKey().PubKey()
 		val := newValidator(t, sdk.ValAddress(pk.Address()), pk)
-		val.Status = types.Bonded
+		val.Status = Bonded
 		val.Tokens = sdk.NewInt(rand.Int63())
 		vals[i] = val
 		tmPk, err := cryptocodec.ToTmPubKeyInterface(pk)
 		require.NoError(t, err)
 		expected[i] = tmtypes.NewValidator(tmPk, val.ConsensusPower(sdk.DefaultPowerReduction))
 	}
-	vs, err := teststaking.ToTmValidators(vals, sdk.DefaultPowerReduction)
+	vs, err := ToTmValidators(vals, sdk.DefaultPowerReduction)
 	require.NoError(t, err)
 	require.Equal(t, expected, vs)
 }
 
 func TestBondStatus(t *testing.T) {
-	require.False(t, types.Unbonded == types.Bonded)
-	require.False(t, types.Unbonded == types.Unbonding)
-	require.False(t, types.Bonded == types.Unbonding)
-	require.Equal(t, types.BondStatus(4).String(), "4")
-	require.Equal(t, types.BondStatusUnspecified, types.Unspecified.String())
-	require.Equal(t, types.BondStatusUnbonded, types.Unbonded.String())
-	require.Equal(t, types.BondStatusBonded, types.Bonded.String())
-	require.Equal(t, types.BondStatusUnbonding, types.Unbonding.String())
+	require.False(t, Unbonded == Bonded)
+	require.False(t, Unbonded == Unbonding)
+	require.False(t, Bonded == Unbonding)
+	require.Equal(t, BondStatus(4).String(), "4")
+	require.Equal(t, BondStatusUnspecified, Unspecified.String())
+	require.Equal(t, BondStatusUnbonded, Unbonded.String())
+	require.Equal(t, BondStatusBonded, Bonded.String())
+	require.Equal(t, BondStatusUnbonding, Unbonding.String())
 }
 
-func mkValidator(tokens int64, shares sdk.Dec) types.Validator {
-	return types.Validator{
+func mkValidator(tokens int64, shares sdk.Dec) Validator {
+	return Validator{
 		OperatorAddress: valAddr1.String(),
 		ConsensusPubkey: pk1Any,
-		Status:          types.Bonded,
+		Status:          Bonded,
 		Tokens:          sdk.NewInt(tokens),
 		DelegatorShares: shares,
 	}
 }
 
 // Creates a new validators and asserts the error check.
-func newValidator(t *testing.T, operator sdk.ValAddress, pubKey cryptotypes.PubKey) types.Validator {
-	v, err := types.NewValidator(operator, pubKey, types.Description{})
+func newValidator(t *testing.T, operator sdk.ValAddress, pubKey cryptotypes.PubKey) Validator {
+	v, err := NewValidator(operator, pubKey, Description{})
 	require.NoError(t, err)
 	return v
+}
+
+// GetTmConsPubKey gets the validator's public key as a tmcrypto.PubKey.
+func GetTmConsPubKey(v Validator) (tmcrypto.PubKey, error) {
+	pk, err := v.ConsPubKey()
+	if err != nil {
+		return nil, err
+	}
+
+	return cryptocodec.ToTmPubKeyInterface(pk)
+}
+
+// ToTmValidator casts an SDK validator to a tendermint type Validator.
+func ToTmValidator(v Validator, r sdk.Int) (*tmtypes.Validator, error) {
+	tmPk, err := GetTmConsPubKey(v)
+	if err != nil {
+		return nil, err
+	}
+
+	return tmtypes.NewValidator(tmPk, v.ConsensusPower(r)), nil
+}
+
+// ToTmValidators casts all validators to the corresponding tendermint type.
+func ToTmValidators(v Validators, r sdk.Int) ([]*tmtypes.Validator, error) {
+	validators := make([]*tmtypes.Validator, len(v))
+	var err error
+	for i, val := range v {
+		validators[i], err = ToTmValidator(val, r)
+		if err != nil {
+			return nil, err
+		}
+	}
+
+	return validators, nil
 }

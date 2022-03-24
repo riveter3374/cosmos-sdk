@@ -1,15 +1,16 @@
 package simulation_test
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"math/rand"
 	"testing"
+
+	"github.com/cosmos/cosmos-sdk/codec/legacy"
 
 	"github.com/stretchr/testify/suite"
 	abci "github.com/tendermint/tendermint/abci/types"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
+	simapp "github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
@@ -43,6 +44,7 @@ func (suite *SimTestSuite) TestWeightedOperations() {
 		{simappparams.DefaultWeightMsgWithdrawDelegationReward, types.ModuleName, types.TypeMsgWithdrawDelegatorReward},
 		{simappparams.DefaultWeightMsgWithdrawValidatorCommission, types.ModuleName, types.TypeMsgWithdrawValidatorCommission},
 		{simappparams.DefaultWeightMsgFundCommunityPool, types.ModuleName, types.TypeMsgFundCommunityPool},
+		{simulation.DefaultWeightMsgWithdrawTokenizeShareRecordReward, types.ModuleName, types.TypeMsgWithdrawTokenizeShareRecordReward},
 	}
 
 	for i, w := range weightesOps {

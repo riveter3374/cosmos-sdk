@@ -1,4 +1,4 @@
-package types_test
+package types
 
 import (
 	"testing"
@@ -6,7 +6,6 @@ import (
 	"github.com/stretchr/testify/require"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/distribution/types"
 )
 
 func TestParams_ValidateBasic(t *testing.T) {
@@ -31,7 +30,7 @@ func TestParams_ValidateBasic(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			p := types.Params{
+			p := Params{
 				CommunityTax:        tt.fields.CommunityTax,
 				BaseProposerReward:  tt.fields.BaseProposerReward,
 				BonusProposerReward: tt.fields.BonusProposerReward,
@@ -45,5 +44,5 @@ func TestParams_ValidateBasic(t *testing.T) {
 }
 
 func TestDefaultParams(t *testing.T) {
-	require.NoError(t, types.DefaultParams().ValidateBasic())
+	require.NoError(t, DefaultParams().ValidateBasic())
 }

@@ -1,10 +1,11 @@
 package simulation_test
 
 import (
-	"github.com/cosmos/cosmos-sdk/codec/legacy"
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/cosmos/cosmos-sdk/codec/legacy"
 
 	"github.com/stretchr/testify/require"
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -13,7 +14,7 @@ import (
 
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
 	"github.com/cosmos/cosmos-sdk/crypto/keys/secp256k1"
-	"github.com/cosmos/cosmos-sdk/simapp"
+	simapp "github.com/cosmos/cosmos-sdk/simapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	simtypes "github.com/cosmos/cosmos-sdk/types/simulation"
