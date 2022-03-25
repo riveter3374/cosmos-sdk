@@ -39,5 +39,5 @@ message GrantAuthorization {
 // GrantQueueItem contains the list of TypeURL of a sdk.Msg.
 message GrantQueueItem {
   // msg_type_urls contains the list of TypeURL of a sdk.Msg.
-  repeated string msg_type_urls = 1; 
+  repeated string msg_type_urls = 1;
 }

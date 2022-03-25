@@ -194,8 +194,9 @@ message MsgCreateGroupWithPolicy {
   // group_policy_metadata is any arbitrary metadata attached to the group policy.
   string group_policy_metadata = 4;
 
-  // group_policy_as_admin is a boolean field, if set to true, the group policy account address will be used as group and group policy admin.
-  bool group_policy_as_admin = 5; 
+  // group_policy_as_admin is a boolean field, if set to true, the group policy account address will be used as group
+  // and group policy admin.
+  bool group_policy_as_admin = 5;
 
   // decision_policy specifies the group policy's decision policy.
   google.protobuf.Any decision_policy = 6 [(cosmos_proto.accepts_interface) = "DecisionPolicy"];

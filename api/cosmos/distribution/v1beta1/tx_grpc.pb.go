@@ -31,6 +31,9 @@ type MsgClient interface {
 	// WithdrawValidatorCommission defines a method to withdraw the
 	// full commission to the validator address.
 	WithdrawValidatorCommission(ctx context.Context, in *MsgWithdrawValidatorCommission, opts ...grpc.CallOption) (*MsgWithdrawValidatorCommissionResponse, error)
+	// WithdrawTokenizeShareRecordReward defines a method to withdraw reward for
+	// owning TokenizeShareRecord
+	WithdrawTokenizeShareRecordReward(ctx context.Context, in *MsgWithdrawTokenizeShareRecordReward, opts ...grpc.CallOption) (*MsgWithdrawTokenizeShareRecordRewardResponse, error)
 	// FundCommunityPool defines a method to allow an account to directly
 	// fund the community pool.
 	FundCommunityPool(ctx context.Context, in *MsgFundCommunityPool, opts ...grpc.CallOption) (*MsgFundCommunityPoolResponse, error)
@@ -71,6 +74,15 @@ func (c *msgClient) WithdrawValidatorCommission(ctx context.Context, in *MsgWith
 	return out, nil
 }
 
+func (c *msgClient) WithdrawTokenizeShareRecordReward(ctx context.Context, in *MsgWithdrawTokenizeShareRecordReward, opts ...grpc.CallOption) (*MsgWithdrawTokenizeShareRecordRewardResponse, error) {
+	out := new(MsgWithdrawTokenizeShareRecordRewardResponse)
+	err := c.cc.Invoke(ctx, "/cosmos.distribution.v1beta1.Msg/WithdrawTokenizeShareRecordReward", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *msgClient) FundCommunityPool(ctx context.Context, in *MsgFundCommunityPool, opts ...grpc.CallOption) (*MsgFundCommunityPoolResponse, error) {
 	out := new(MsgFundCommunityPoolResponse)
 	err := c.cc.Invoke(ctx, "/cosmos.distribution.v1beta1.Msg/FundCommunityPool", in, out, opts...)
@@ -93,6 +105,9 @@ type MsgServer interface {
 	// WithdrawValidatorCommission defines a method to withdraw the
 	// full commission to the validator address.
 	WithdrawValidatorCommission(context.Context, *MsgWithdrawValidatorCommission) (*MsgWithdrawValidatorCommissionResponse, error)
+	// WithdrawTokenizeShareRecordReward defines a method to withdraw reward for
+	// owning TokenizeShareRecord
+	WithdrawTokenizeShareRecordReward(context.Context, *MsgWithdrawTokenizeShareRecordReward) (*MsgWithdrawTokenizeShareRecordRewardResponse, error)
 	// FundCommunityPool defines a method to allow an account to directly
 	// fund the community pool.
 	FundCommunityPool(context.Context, *MsgFundCommunityPool) (*MsgFundCommunityPoolResponse, error)
@@ -111,6 +126,9 @@ func (UnimplementedMsgServer) WithdrawDelegatorReward(context.Context, *MsgWithd
 }
 func (UnimplementedMsgServer) WithdrawValidatorCommission(context.Context, *MsgWithdrawValidatorCommission) (*MsgWithdrawValidatorCommissionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method WithdrawValidatorCommission not implemented")
+}
+func (UnimplementedMsgServer) WithdrawTokenizeShareRecordReward(context.Context, *MsgWithdrawTokenizeShareRecordReward) (*MsgWithdrawTokenizeShareRecordRewardResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method WithdrawTokenizeShareRecordReward not implemented")
 }
 func (UnimplementedMsgServer) FundCommunityPool(context.Context, *MsgFundCommunityPool) (*MsgFundCommunityPoolResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method FundCommunityPool not implemented")
@@ -182,6 +200,24 @@ func _Msg_WithdrawValidatorCommission_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Msg_WithdrawTokenizeShareRecordReward_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MsgWithdrawTokenizeShareRecordReward)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MsgServer).WithdrawTokenizeShareRecordReward(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/cosmos.distribution.v1beta1.Msg/WithdrawTokenizeShareRecordReward",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MsgServer).WithdrawTokenizeShareRecordReward(ctx, req.(*MsgWithdrawTokenizeShareRecordReward))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _Msg_FundCommunityPool_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MsgFundCommunityPool)
 	if err := dec(in); err != nil {
@@ -218,6 +254,10 @@ var Msg_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "WithdrawValidatorCommission",
 			Handler:    _Msg_WithdrawValidatorCommission_Handler,
+		},
+		{
+			MethodName: "WithdrawTokenizeShareRecordReward",
+			Handler:    _Msg_WithdrawTokenizeShareRecordReward_Handler,
 		},
 		{
 			MethodName: "FundCommunityPool",
