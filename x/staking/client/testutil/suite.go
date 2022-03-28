@@ -1511,7 +1511,7 @@ func (s *IntegrationTestSuite) TestNewTransferTokenizeShareRecordCmd() {
 		{
 			"valid transaction of transfer tokenize share record",
 			[]string{
-				"123",
+				"1",
 				val.Address.String(),
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 				fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
